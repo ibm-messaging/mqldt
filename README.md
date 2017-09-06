@@ -6,7 +6,7 @@ The purpose of this tool is to test the capability of a Linux mounted filesystem
 <ul><li>If any queue manager is currently using the filesystem being tested:</li>
 <ul><li>Do NOT specify existing log files to write to.</li>
 <li>Create a new directory on the filesystem to be tested (this must be in the same file system as the current MQ logs)</li>
-<li>Running this tool WILL adversely affect the performance of the existing queue manager(s), for the duration of the test, and possibly cause applications problems whose symptoms may last beyond the filesystem test.</li>
+<li>Running this tool WILL adversely affect the performance of the existing queue manager(s), for the duration of the test, (which may, in turn, cause applications problems whose symptoms last beyond the filesystem test.</li>
 </ul></ul>
 
 The tool is similar in purpose to fio, but has been written to test writing to a filesystem with the same options, and in the same way, that MQ writes to its transaction logs, without having to specify lots of options on the command line to get it right.
