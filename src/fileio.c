@@ -154,8 +154,8 @@ struct fileStore *prepareFiles(){
       }
 	  fs->files[i][1]=0; /*set seek position to start of file*/
 	  if(lseek(fs->files[i][0],0,SEEK_SET) == -1){
-	     printf("Error setting seek position on test file %s to 0: %s\n",currFileName,strerror(errno));
-	     exit(8);
+		 printf("Error setting seek position on test file %s to 0: %s\n",currFileName,strerror(errno));
+		 exit(8);
 	  }
 	  
 	  currFileIndex++;
@@ -251,10 +251,16 @@ void printFileStats(struct fileStore *fs){
 }
 
 void csvFileStatsTitles(struct fileStore *fs, FILE *csvFile){
-	fprintf(csvFile,"%s,%s,%s,%s",totalBytesDesc,maxBytesSecDesc,minBytesSecDesc,avgBytesSecDesc);
+	if(	fprintf(csvFile,"%s,%s,%s,%s",totalBytesDesc,maxBytesSecDesc,minBytesSecDesc,avgBytesSecDesc) < 0) {
+		perror("Error writing to csvFile");
+		exit(8);
+	}
 }
 
 void csvFileStats(struct fileStore *fs, FILE *csvFile){
-	fprintf(csvFile,"%li,%li,%li,%li",(fs->stats.total_writes * fs->writeVec[0].iov_len),fs->stats.max_bytes_sec,fs->stats.min_bytes_sec,fs->stats.avg_bytes_sec);
+	if(fprintf(csvFile,"%li,%li,%li,%li",(fs->stats.total_writes * fs->writeVec[0].iov_len),fs->stats.max_bytes_sec,fs->stats.min_bytes_sec,fs->stats.avg_bytes_sec) < 0){
+		perror("Error writing to csvFile");
+		exit(8);
+	}
 }
 
