@@ -29,7 +29,7 @@ CC=gcc
 # Source directory
 SRC = src
 
-CFLAGS= -pthread -lm
+CFLAGS= -pthread -lm -lrt
 
 # Full list of object files to be created (one for each source file)
 OBJS = $(patsubst $(SRC)/%.c, $(SRC)/%.o, $(wildcard $(SRC)/*.c))
