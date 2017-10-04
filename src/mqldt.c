@@ -76,7 +76,11 @@ int main(int argc, char *argv[]) {
    printOptions();
    
    if(options.csvFile != NULL){
-	   csvFile = fopen(options.csvFile,"w");
+	  csvFile = fopen(options.csvFile,"w");
+	  if(csvFile == NULL) {
+		  perror("Error opening csv file for writing");
+		  exit(8);
+	  }
 	  fprintf(csvFile,"Blocksize,");
 	  csvFileStatsTitles(files,csvFile);
 	  fprintf(csvFile,",");

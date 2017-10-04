@@ -66,14 +66,14 @@ struct fileStore *prepareFiles(){
         
    struct iovec format_vec[1];  /*Use this to 'format' the files*/
 
-    struct stat stat_buf;
+   struct stat stat_buf;
 
    /*int openOptions = O_CREAT|O_RDWR|O_SYNC|O_DSYNC|O_DIRECT;*/
    int openOptions = O_CREAT|O_RDWR|O_DSYNC|O_DIRECT;
    int openOptions2 = O_RDWR|O_DSYNC;
    /*int openOptions = O_CREAT|O_RDWR|O_SYNC|O_DSYNC|O_DIRECT;*/
 
-    int rc = -1;
+   int rc = -1;
 
    puts("Creating files...");
    umask(0); /*Change umask to allow us to set all file permissions*/
@@ -127,25 +127,36 @@ struct fileStore *prepareFiles(){
    format_vec[0].iov_len = options.fileSize;
    
    for(i = 0; i < options.numFiles;i++){
-	rc = stat(currFileName, &stat_buf);
-    if (rc == 0) {
-        if (((long long)stat_buf.st_size) == options.fileSize) {
-        }
-        else {
+      rc = stat(currFileName, &stat_buf);
+      if (rc == 0) {
+         if (((long long)stat_buf.st_size) != options.fileSize) {
             rc = -1;
-        }
-    }
+         }
+      }
  	  fs->files[i][0]=open(currFileName, openOptions, 0660);
-	  fs->files[i][2]=open(currFileName, openOptions2);
-        if (rc == -1) {
-	  writeLen = writev(fs->files[i][0],format_vec,1);
-	  if(writeLen == -1 ){
-		  perror("Error populating test files");
+	  if(fs->files[i][0] == -1) {
+		  printf("Error creating (or opening existing) test file %s: %s\n",currFileName,strerror(errno));
 		  exit(8);
 	  }
-        }
+	  
+	  fs->files[i][2]=open(currFileName, openOptions2);
+	  if(fs->files[i][0] == -1) {
+		  printf("Error creating 2nd handle on test file %s: %s\n",currFileName,strerror(errno));
+		  exit(8);
+	  }
+	  
+      if (rc == -1) {
+	     writeLen = writev(fs->files[i][0],format_vec,1);
+	     if(writeLen == -1 ){
+  		    printf("Error populating test file %s: %s\n",currFileName,strerror(errno));
+		    exit(8);
+	     }
+      }
 	  fs->files[i][1]=0; /*set seek position to start of file*/
-	  lseek(fs->files[i][0],0,SEEK_SET);
+	  if(lseek(fs->files[i][0],0,SEEK_SET) == -1){
+	     printf("Error setting seek position on test file %s to 0: %s\n",currFileName,strerror(errno));
+	     exit(8);
+	  }
 	  
 	  currFileIndex++;
 	  sprintf(currFileName+stemOffset,"%04i",currFileIndex);
@@ -158,15 +169,19 @@ ssize_t writeToFile(struct fileStore *fs, int writeBlockSize){
 	ssize_t writeLen;
 	
 	if(fs->files[fs->currentFile][1] + writeBlockSize > options.fileSize) {
+		/*Next write will take us beyon end of file size, so reset seek posion to 0, and move on to next file*/
 		fs->files[fs->currentFile][1]=0;
-		lseek(fs->files[fs->currentFile][0],0,SEEK_SET);
+		if(lseek(fs->files[fs->currentFile][0],0,SEEK_SET) == -1){
+			perror("Error resetting seek position on test file to 0");
+			exit(8);	
+		}
 
 		fs->currentFile++;
 		if(fs->currentFile >= options.numFiles)fs->currentFile=0;
 	}
 	 
     if((writeLen = writev(fs->files[fs->currentFile][0],fs->writeVec,1))== -1){
-		fprintf(stderr,"Error writing to file\n");
+		perror("Error writing to test files");
 		exit(8);
 	} else {
 		fs->stats.total_writes++;
@@ -174,7 +189,10 @@ ssize_t writeToFile(struct fileStore *fs, int writeBlockSize){
 	}
 		
 	fs->files[fs->currentFile][1]+=writeBlockSize;
-	lseek(fs->files[fs->currentFile][0],fs->files[fs->currentFile][1],SEEK_SET);
+	if(lseek(fs->files[fs->currentFile][0],fs->files[fs->currentFile][1],SEEK_SET) == -1){
+		perror("Error setting seek position on test file");
+		exit(8);	
+	}
 	return writeLen;
 }
 
