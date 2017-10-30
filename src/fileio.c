@@ -251,14 +251,14 @@ void printFileStats(struct fileStore *fs){
 }
 
 void csvFileStatsTitles(struct fileStore *fs, FILE *csvFile){
-	if(	fprintf(csvFile,"%s,%s,%s,%s",totalBytesDesc,maxBytesSecDesc,minBytesSecDesc,avgBytesSecDesc) < 0) {
+	if(	fprintf(csvFile,"%s,%s,%s,%s,%s",totalWritesDesc,totalBytesDesc,maxBytesSecDesc,minBytesSecDesc,avgBytesSecDesc) < 0) {
 		perror("Error writing to csvFile");
 		exit(8);
 	}
 }
 
 void csvFileStats(struct fileStore *fs, FILE *csvFile){
-	if(fprintf(csvFile,"%li,%li,%li,%li",(fs->stats.total_writes * fs->writeVec[0].iov_len),fs->stats.max_bytes_sec,fs->stats.min_bytes_sec,fs->stats.avg_bytes_sec) < 0){
+	if(fprintf(csvFile,"%li,%li,%li,%li,%li",fs->stats.total_writes,(fs->stats.total_writes * fs->writeVec[0].iov_len),fs->stats.max_bytes_sec,fs->stats.min_bytes_sec,fs->stats.avg_bytes_sec) < 0){
 		perror("Error writing to csvFile");
 		exit(8);
 	}
