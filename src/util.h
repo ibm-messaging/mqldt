@@ -39,8 +39,11 @@ struct timer{
 	struct timespec *check_time2;
 	int check_count;
 	long min_time;
+	int min_time_instance;
 	long avg_time;
 	long max_time;
+	int max_time_instance;
+	
 };
 
 static inline long tCheck(struct timer *timerIn){
@@ -48,7 +51,7 @@ static inline long tCheck(struct timer *timerIn){
 	struct timespec *temp;
 	
 	clock_gettime(CLOCK_MONOTONIC,timerIn->check_time2);
-	
+	timerIn->check_count++;
 	
 	if(timerIn->check_time2->tv_nsec > timerIn->check_time1->tv_nsec){
 		duration = ((timerIn->check_time2->tv_sec - timerIn->check_time1->tv_sec) * 1000000000 - (timerIn->check_time1->tv_nsec - timerIn->check_time2->tv_nsec));
@@ -56,11 +59,17 @@ static inline long tCheck(struct timer *timerIn){
 		duration = ((timerIn->check_time2->tv_sec - timerIn->check_time1->tv_sec) * 1000000000 + (timerIn->check_time2->tv_nsec - timerIn->check_time1->tv_nsec));
 	}
 	
-	if(duration > timerIn->max_time) timerIn->max_time = duration;
-	if(duration < timerIn->min_time) timerIn->min_time = duration;
+	if(duration > timerIn->max_time){
+	   timerIn->max_time = duration;
+	   timerIn->max_time_instance = timerIn->check_count;
+    }
+    if(duration < timerIn->min_time){
+	      timerIn->min_time = duration;
+		  timerIn->min_time_instance = timerIn->check_count;
+	} 
 	
-	timerIn->avg_time = ((timerIn->avg_time * timerIn->check_count) + duration) / (timerIn->check_count+1);
-	timerIn->check_count++;
+	timerIn->avg_time = ((timerIn->avg_time * timerIn->check_count-1) + duration) / (timerIn->check_count);
+
 	
 	/*flip the timespecs*/
 	temp = timerIn->check_time1;
@@ -74,9 +83,9 @@ static inline long tCheck(struct timer *timerIn){
 void tInit(struct timer *timerIn);
 void tReset(struct timer *timerIn);
 
-void printTimerStats(struct timer *timerIn);
+void printTimerStats(struct timer *timerIn, int blockSize);
 void csvTimerStatsTitles(struct timer *timerIn, FILE *csvFile);
-void csvTimerStats(struct timer *timerIn, FILE *csvFile);
+void csvTimerStats(struct timer *timerIn, FILE *csvFile, int blockSize);
 
 
 extern char *testString;

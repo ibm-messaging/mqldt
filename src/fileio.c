@@ -80,6 +80,10 @@ struct fileStore *prepareFiles(){
 			
    fs = (struct fileStore*)malloc(sizeof(struct fileStore));	
    fs->stats.total_writes = 0;
+   fs->stats.interval_max_bytes_sec = 0;
+   fs->stats.interval_min_bytes_sec = LONG_MAX;
+   fs->stats.interval_max_latency = 0;
+   fs->stats.interval_min_latency = LONG_MAX;   
    fs->stats.update_count = 0;
    fs->stats.persec_bytes = 0;
    fs->stats.max_bytes_sec = 0;
@@ -169,7 +173,7 @@ ssize_t writeToFile(struct fileStore *fs, int writeBlockSize){
 	ssize_t writeLen;
 	
 	if(fs->files[fs->currentFile][1] + writeBlockSize > options.fileSize) {
-		/*Next write will take us beyon end of file size, so reset seek posion to 0, and move on to next file*/
+		/*Next write will take us beyond end of file size, so reset seek posion to 0, and move on to next file*/
 		fs->files[fs->currentFile][1]=0;
 		if(lseek(fs->files[fs->currentFile][0],0,SEEK_SET) == -1){
 			perror("Error resetting seek position on test file to 0");
@@ -210,6 +214,10 @@ void resetFiles(struct fileStore *fs){
 		lseek(fs->files[i][0],0,SEEK_SET);
 	}
     fs->stats.total_writes = 0;
+    fs->stats.interval_max_bytes_sec = 0;
+    fs->stats.interval_min_bytes_sec = LONG_MAX;
+    fs->stats.interval_max_latency = 0;
+    fs->stats.interval_min_latency = LONG_MAX;   
     fs->stats.update_count = 0;
     fs->stats.persec_bytes = 0;
     fs->stats.max_bytes_sec = 0;
@@ -226,8 +234,8 @@ void updateFileStats(struct fileStore *fs){
 	if(fs->stats.intervalTimer < 1000000000  && fs->stats.intervalTimer > 500000000){
 		fs->stats.persec_bytes = fs->stats.persec_bytes * 1/((float)fs->stats.intervalTimer/1000000000);
 	}
-	if(fs->stats.persec_bytes > fs->stats.max_bytes_sec) fs->stats.max_bytes_sec = fs->stats.persec_bytes;
-	if(fs->stats.persec_bytes < fs->stats.min_bytes_sec) fs->stats.min_bytes_sec = fs->stats.persec_bytes;
+	if(fs->stats.persec_bytes > fs->stats.interval_max_bytes_sec) fs->stats.interval_max_bytes_sec = fs->stats.persec_bytes;
+	if(fs->stats.persec_bytes < fs->stats.interval_min_bytes_sec) fs->stats.interval_min_bytes_sec = fs->stats.persec_bytes;
 	
 	fs->stats.avg_bytes_sec = ((fs->stats.avg_bytes_sec * fs->stats.update_count) + fs->stats.persec_bytes) / (fs->stats.update_count+1);
 	fs->stats.update_count++;
@@ -236,29 +244,29 @@ void updateFileStats(struct fileStore *fs){
 }
 
 const char totalBytesDesc[]="Total bytes written to files";
-const char maxBytesSecDesc[]="Max bytes/sec written to files";
-const char minBytesSecDesc[]="Min bytes/sec written to files";
+const char intervalMaxBytesSecDesc[]="Max bytes/sec written to files (over 1 sec interval)";
+const char intervalMinBytesSecDesc[]="Min bytes/sec written to files (over 1 sec interval)";
 const char avgBytesSecDesc[]="Avg bytes/sec written to files";
 const char totalWritesDesc[]="Total writes to files";
 
 void printFileStats(struct fileStore *fs){
 	setlocale(LC_ALL, "");
-	printf("%s          : %'15li\n",totalWritesDesc,fs->stats.total_writes);
-	printf("%s   : %'15li\n",totalBytesDesc,(fs->stats.total_writes * fs->writeVec[0].iov_len) );
-	printf("%s : %'15li\n",maxBytesSecDesc,fs->stats.max_bytes_sec);
-	printf("%s : %'15li\n",minBytesSecDesc,fs->stats.min_bytes_sec);
-	printf("%s : %'15li\n",avgBytesSecDesc,fs->stats.avg_bytes_sec);
+	printf("%s                                : %'15li\n",totalWritesDesc,fs->stats.total_writes);
+	printf("%s                         : %'15li\n",totalBytesDesc,(fs->stats.total_writes * fs->writeVec[0].iov_len) );
+	printf("%s : %'15li\n",intervalMaxBytesSecDesc,fs->stats.interval_max_bytes_sec);
+	printf("%s : %'15li\n",intervalMinBytesSecDesc,fs->stats.interval_min_bytes_sec);
+	printf("%s                       : %'15li\n",avgBytesSecDesc,fs->stats.avg_bytes_sec);
 }
 
 void csvFileStatsTitles(struct fileStore *fs, FILE *csvFile){
-	if(	fprintf(csvFile,"%s,%s,%s,%s,%s",totalWritesDesc,totalBytesDesc,maxBytesSecDesc,minBytesSecDesc,avgBytesSecDesc) < 0) {
+	if(	fprintf(csvFile,"%s,%s,%s,%s,%s",totalWritesDesc,totalBytesDesc,intervalMaxBytesSecDesc,intervalMinBytesSecDesc,avgBytesSecDesc) < 0) {
 		perror("Error writing to csvFile");
 		exit(8);
 	}
 }
 
 void csvFileStats(struct fileStore *fs, FILE *csvFile){
-	if(fprintf(csvFile,"%li,%li,%li,%li,%li",fs->stats.total_writes,(fs->stats.total_writes * fs->writeVec[0].iov_len),fs->stats.max_bytes_sec,fs->stats.min_bytes_sec,fs->stats.avg_bytes_sec) < 0){
+	if(fprintf(csvFile,"%li,%li,%li,%li,%li",fs->stats.total_writes,(fs->stats.total_writes * fs->writeVec[0].iov_len),fs->stats.interval_max_bytes_sec,fs->stats.interval_min_bytes_sec,fs->stats.avg_bytes_sec) < 0){
 		perror("Error writing to csvFile");
 		exit(8);
 	}

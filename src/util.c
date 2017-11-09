@@ -94,19 +94,23 @@ void tReset(struct timer *timerIn){
 const char maxLatencyDesc[] = "Max latency of write (ns)";
 const char minLatencyDesc[] = "Min latency of write (ns)";
 const char avgLatencyDesc[] = "Avg latency of write (ns)";
+const char maxBytesSecDesc[]= "Max bytes/sec (fastest write)";
+const char minBytesSecDesc[]= "Min bytes/sec (slowest write)";
 
-void printTimerStats(struct timer *timerIn){
-	printf("%s      : %'15li\n",maxLatencyDesc, timerIn->max_time);
-	printf("%s      : %'15li\n",minLatencyDesc, timerIn->min_time);
+void printTimerStats(struct timer *timerIn, int blockSize){
+	printf("%s      : %'15li (#%'i)\n",maxLatencyDesc, timerIn->max_time, timerIn->max_time_instance);
+	printf("%s  : %'15li\n",minBytesSecDesc, (long)(blockSize/((float)timerIn->max_time/1000000000)));
+	printf("%s      : %'15li (#%'i)\n",minLatencyDesc, timerIn->min_time, timerIn->min_time_instance);
+	printf("%s  : %'15li\n",maxBytesSecDesc, (long)(blockSize/((float)timerIn->min_time/1000000000)));
 	printf("%s      : %'15li\n",avgLatencyDesc, timerIn->avg_time);
 }
 
 void csvTimerStatsTitles(struct timer *timerIn, FILE *csvFile){
-	fprintf(csvFile,"%s,%s,%s",maxLatencyDesc,minLatencyDesc,avgLatencyDesc);
+	fprintf(csvFile,"%s,%s,%s,%s,%s",maxLatencyDesc,minLatencyDesc,avgLatencyDesc,minBytesSecDesc,maxBytesSecDesc);
 }
 
-void csvTimerStats(struct timer *timerIn, FILE *csvFile){
-	fprintf(csvFile,"%li,%li,%li",timerIn->max_time,timerIn->min_time,timerIn->avg_time);
+void csvTimerStats(struct timer *timerIn, FILE *csvFile, int blockSize){
+	fprintf(csvFile,"%li,%li,%li,%li,%li",timerIn->max_time,timerIn->min_time,timerIn->avg_time,(long)(blockSize/((float)timerIn->max_time/1000000000)),(long)(blockSize/((float)timerIn->min_time/1000000000)));
 }
 
 

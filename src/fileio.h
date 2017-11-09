@@ -35,9 +35,13 @@ struct fstats{
 	int update_count;
 	long persec_bytes;
 	long total_writes;
+	long interval_max_bytes_sec;
+	long interval_min_bytes_sec;
+	long interval_max_latency;
+	long interval_min_latency;
 	long max_bytes_sec;
-	long avg_bytes_sec;
 	long min_bytes_sec;
+	long avg_bytes_sec;
 	long intervalTimer;
 };
 

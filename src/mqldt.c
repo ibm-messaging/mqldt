@@ -129,14 +129,14 @@ int main(int argc, char *argv[]) {
 	  updateFileStats(files);
 	  printFileStats(files);
 	  puts("");
-	  printTimerStats(&t1);
+	  printTimerStats(&t1, options.blockSize[testCount]);
 	  puts("");
 	  elapsed = 0;
 	  if(options.csvFile != NULL){
 		  fprintf(csvFile,"%i,",options.blockSize[testCount]);
 		  csvFileStats(files,csvFile);
 		  fprintf(csvFile,",");
-		  csvTimerStats(&t1,csvFile);
+		  csvTimerStats(&t1,csvFile, options.blockSize[testCount]);
 		  fprintf(csvFile,"\n");			  
 	  }
 	  resetFiles(files); /*Reset SEEK pointers to start of files */  
