@@ -32,7 +32,16 @@ Options:
 e.g.
 mqldt --dir=/var/san1/testdir --filePrefix=mqtestfile --bsize=5K,9K,17K,24K,49K,48K,54K,62K,77K,95K,105K --fileSize=67108864 --numFiles=16 --duration=40 --csvFile=./san_log.csv
 
-Sample output:
+Use the values in qm.ini (or those planned) to calculate some of the parameters to MQLDT.
+
+<table>
+<tr><td>MQLDT Parm</td><td>qm.ini parm(s)</td></tr>
+<tr><td>--dir</td><td>Any directory hosted by the same file-system as <i>Log:LogPath</i></td></tr>
+<tr><td>--fileSize</td><td><i>Log:LogFilePages</i> x 4096</td></tr>
+<tr><td>--numFiles</td><td><i>Log:LogPrimaryFiles</i></td></tr>
+</table>
+
+### Sample output:
 
 <pre>
 Options (specified or defaulted to)
@@ -47,23 +56,29 @@ Test duration               (--duration)           : 20
 Creating files...
 Executing test for write blocksize 131072 (128k). Seconds elapsed -> 20/20
 
-Total writes to files          :          46,790
-Total bytes written to files   :   6,132,858,880
-Max bytes/sec written to files :     311,689,216
-Min bytes/sec written to files :     299,630,592
-Avg bytes/sec written to files :     306,754,931
+Total writes to files                                :          46,178
+Total bytes written to files                         :   6,052,642,816
+Max bytes/sec written to files (over 1 sec interval) :     311,689,216
+Min bytes/sec written to files (over 1 sec interval) :     297,795,584
+Avg bytes/sec written to files                       :     302,732,356
 
-Max latency of write (ns)      :       4,669,311
-Min latency of write (ns)      :         375,204
-Avg latency of write (ns)      :         415,704
+Max latency of write (ns)      :       4,977,438 (#24,649)
+Min bytes/sec (slowest write)  :      26,333,226
+Min latency of write (ns)      :         375,889 (#42,421)
+Max bytes/sec (fastest write)  :     348,698,688
+Avg latency of write (ns)      :       4,935,648
 </pre>
 
-Use the values in qm.ini (or those planned) to calculate some of the parameters to MQLDT.
-
+### Description of Output
 <table>
-<tr><td>MQLDT Parm</td><td>qm.ini parm(s)</td></tr>
-<tr><td>--dir</td><td>Any directory hosted by the same file-system as <i>Log:LogPath</i></td></tr>
-<tr><td>--fileSize</td><td><i>Log:LogFilePages</i> x 4096</td></tr>
-<tr><td>--numFiles</td><td><i>Log:LogPrimaryFiles</i></td></tr>
+<tr><td>Total writes to files</td><td>The total number of writev operations completed over the duration of the test</td></tr>
+<tr><td>Total bytes written to files</td><td>Total bytes written over the duration of the test (i.e Total writes to files x blocksize)</td></tr>
+<tr><td>Max bytes/sec written to files (over 1 sec interval)</td><td>MQLDT calculates how much data has been written every second, this is the maximum write bandwidth measured for any one second duration. If the test is only run for one second this number will be the same as 'Avg bytes/sec written to files'</td></tr>
+<tr><td>Min bytes/sec written to files (over 1 sec interval)</td><td>This is the minimum write bandwidth measured for any one second duration '(see Max bytes/sec written to files (over 1 sec interval)', above). If the test is only run for one second this number will be the same as 'Avg bytes/sec written to files'</td></tr>
+<tr><td>Avg bytes/sec written to files</td><td>Average write bandwidth over duration of test.</td></tr>
+<tr><td>Max latency of write (ns)</td><td>The longest time (in nanoseconds) to complete a write during the test. The number of the write is indicated in brackets.</td></tr>
+<tr><td>Min bytes/sec (slowest write)</td><td>The theoretical minimum bandwidth, if every write had the maximum latency indicated above</td></tr>
+<tr><td>Min latency of write (ns)</td><td>The shortest time (in nanoseconds) to complete a write during the test. The number of the write is indicated in brackets.</td></tr>
+<tr><td>Man bytes/sec (fastest write)</td><td>The theoretical maximum bandwidth, if every write had the minimum latency indicated above</td></tr>
+<tr><td>Avg latency of write (ns)</td><td>The average time (in nanoseconds) to complete a write during the test.</td></tr>
 </table>
-
