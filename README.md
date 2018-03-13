@@ -23,7 +23,7 @@ mqldt &ltoptions&gt
 Options:
 --dir         : Directory in which create and test files being written to. 
 --filePrefix  : prefix of test files
---bsize       : Blocksize(s), of writes to be used. Can be a single value, or a commseperated list. Supports k suffix.
+--bsize       : Blocksize(s), of writes to be used. Can be a single value, or a comma separated list. Supports k suffix.
 --fileSize    : File size of each test file
 --numFiles    : Number of files to create and use
 --duration    : Number of seconds to test
