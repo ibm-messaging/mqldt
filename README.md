@@ -1,6 +1,6 @@
 # mqldt - IBM MQ Log Disk Tester
 
-The purpose of this tool is to test the capability of a Linux mounted filesystem being used (or being proposed) to host an MQ transaction log.
+The purpose of this tool is to test the capability of a Linux mounted filesystem being used (or being proposed) to host an MQ recovery log.
 
 ![#f03c15](https://placehold.it/15/f03c15/000000?text=+)<b> Warning!!</b>  
 <ul><li>If any queue manager is currently using the filesystem being tested:</li>
@@ -9,7 +9,7 @@ The purpose of this tool is to test the capability of a Linux mounted filesystem
 <li>Running this tool WILL adversely affect the performance of the existing queue manager(s), for the duration of the test, (which may, in turn, cause applications problems whose symptoms last beyond the filesystem test.</li>
 </ul></ul>
 
-The tool is similar in purpose to fio, but has been written to test writing to a filesystem with the same options, and in the same way, that MQ writes to its transaction logs, without having to specify lots of options on the command line to get it right.
+The tool is similar in purpose to fio, but has been written to test writing to a filesystem with the same options, and in the same way, that MQ writes to its recovery logs, without having to specify lots of options on the command line to get it right.
 
 There are additionally, some problems with the use of fio, which this tool addresses (like being unable to get the open and write options exactly the same as MQ, and the pre-loading and usage pattern of the log files).
 
