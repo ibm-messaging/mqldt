@@ -68,7 +68,7 @@ static inline long tCheck(struct timer *timerIn){
 		  timerIn->min_time_instance = timerIn->check_count;
 	} 
 	
-	timerIn->avg_time = ((timerIn->avg_time * timerIn->check_count-1) + duration) / (timerIn->check_count);
+	timerIn->avg_time = ((timerIn->avg_time * (timerIn->check_count-1)) + duration) / (timerIn->check_count);
 
 	
 	/*flip the timespecs*/
