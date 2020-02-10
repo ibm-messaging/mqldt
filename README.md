@@ -79,6 +79,6 @@ Avg latency of write (ns)      :       4,935,648
 <tr><td>Max latency of write (ns)</td><td>The longest time (in nanoseconds) to complete a write during the test. The number of the write is indicated in brackets.</td></tr>
 <tr><td>Min bytes/sec (slowest write)</td><td>The theoretical minimum bandwidth, if every write had the maximum latency indicated above</td></tr>
 <tr><td>Min latency of write (ns)</td><td>The shortest time (in nanoseconds) to complete a write during the test. The number of the write is indicated in brackets.</td></tr>
-<tr><td>Man bytes/sec (fastest write)</td><td>The theoretical maximum bandwidth, if every write had the minimum latency indicated above</td></tr>
+<tr><td>Max bytes/sec (fastest write)</td><td>The theoretical maximum bandwidth, if every write had the minimum latency indicated above</td></tr>
 <tr><td>Avg latency of write (ns)</td><td>The average time (in nanoseconds) to complete a write during the test.</td></tr>
 </table>
