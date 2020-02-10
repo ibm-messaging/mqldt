@@ -1,0 +1,8 @@
+#Ignore Object files
+*.o
+
+#Ignore executable
+mqldt
+
+#Ignore CSV files
+*.csv

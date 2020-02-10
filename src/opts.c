@@ -164,7 +164,7 @@ void printOptions(){
 	printf("Size of test files          (--fileSize)           : %i\n",options.fileSize);
 	/*printf("Simulate linear logging?    (--linear)     : %i\n",options.linearLogging);*/
 	printf("Test duration               (--duration)           : %i\n",options.duration);
-	if(alignmentSpecified) printf("Record alignment            (--alignment)          : %u\n",options.alignment);
+	if(alignmentSpecified) printf("Record alignment            (--alignment)          : %ld\n",options.alignment);
 	if(options.backgroundThreads>0) printf("Background Threads          (--backgroundThreads)  : %i\n",options.backgroundThreads);
 
 	puts("");
