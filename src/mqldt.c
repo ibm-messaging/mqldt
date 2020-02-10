@@ -143,5 +143,5 @@ int main(int argc, char *argv[]) {
    }
 
   closeFiles(files);
-  if(options.csvFile != NULL) close(csvFile);
+  if(options.csvFile != NULL) fclose(csvFile);
 }
