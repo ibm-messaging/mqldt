@@ -82,3 +82,13 @@ Avg latency of write (ns)      :       4,935,648
 <tr><td>Max bytes/sec (fastest write)</td><td>The theoretical maximum bandwidth, if every write had the minimum latency indicated above</td></tr>
 <tr><td>Avg latency of write (ns)</td><td>The average time (in nanoseconds) to complete a write during the test.</td></tr>
 </table>
+
+## Docker
+
+There is a repo that builds a dockerized version of mqldt called [mqldt-c](https://github.com/ibm-messaging/mqldt-c).
+
+The automatic built image from that repo is available [here](https://hub.docker.com/r/stmassey/mqldt) and can be pulled with the following command: 
+```
+docker pull stmassey/mqldt
+```
+
