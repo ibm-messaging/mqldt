@@ -36,12 +36,12 @@
 void display_usage(void)
 {
     puts( "mqldt - MQ log file tester" );
-    /* ... */
+    puts( "Usage: mqldt --dir <directory --bsize <list of csv blocksizes i.e 32K,64K> [ --filePrefix <prefix> --fileSize <fs> --numFiles <n> --duration <s> --csvFile <csvFileName> --qm <#qm>]" );
     exit(8);
 }
 
 int alignmentSpecified = 0;
-static const char *optString = "h?b:d:f:s:t:n:c:a:p:";
+static const char *optString = "h?b:d:f:s:t:n:c:a:p:q:";
 
 static const struct option longOpts[] = {
     { "bsize", required_argument, NULL, 'b' },
@@ -54,6 +54,7 @@ static const struct option longOpts[] = {
 	{ "alignment", optional_argument, NULL, 'a'},
 	{ "backgroundThreads", optional_argument, NULL, 'p'},
     { "help", no_argument, NULL, 'h' },
+	{ "qm", optional_argument, NULL, 'q'},
     { NULL, no_argument, NULL, 0 }
 };
 
@@ -74,7 +75,14 @@ void parseOptions(int argc, char* argv[]){
    options.blockSizeCount = 0;
    options.csvFile = NULL;
    options.backgroundThreads = 0;
-   
+   options.numFiles = 8;
+   options.qm = 1;
+
+   if (opt == -1) {
+        display_usage();
+		return;
+   }
+
    while( opt != -1 ) {
       switch( opt ) {
          case 'b':
@@ -118,13 +126,20 @@ void parseOptions(int argc, char* argv[]){
 			
          case 't':
             options.duration = atoi(optarg);
+			if(options.duration < 1) {
+				fprintf(stderr,"Error: value of duration is too small\n");
+				display_usage();
+			}
          	break;
-			
 
          case 'n':
             options.numFiles = atoi(optarg);
 			if(options.numFiles > 10000){
 				fprintf(stderr,"Error: value of numFiles is too big\n");
+				display_usage();
+			}
+			if(options.numFiles < 1){
+				fprintf(stderr,"Error: value of numFiles is too small\n");
 				display_usage();
 			}
 	      	break;
@@ -137,6 +152,14 @@ void parseOptions(int argc, char* argv[]){
   		 case 'p':
   		   options.backgroundThreads = atoi(optarg);	
   		   break;
+
+         case 'q':
+            options.qm = atoi(optarg);
+			if (options.qm > 10) {
+				puts("A maximum of 10 simulated queue managers is supported\n");
+				display_usage();
+			}
+         	break;
 		
          case 'h':   /* fall-through is intentional */
          case '?':
@@ -152,6 +175,10 @@ void parseOptions(int argc, char* argv[]){
    if (options.alignment == 0){
       options.alignment = file_GetPhysicalBlockSize(options.directory);	
    }
+   if ((options.qm > 1) && (options.blockSizeCount > 1)) {
+	   puts("MQLDT currently only supports a single block size with more than 1 QM");
+       display_usage();
+   }
 }
 
 void printOptions(){
@@ -166,6 +193,6 @@ void printOptions(){
 	printf("Test duration               (--duration)           : %i\n",options.duration);
 	if(alignmentSpecified) printf("Record alignment            (--alignment)          : %ld\n",options.alignment);
 	if(options.backgroundThreads>0) printf("Background Threads          (--backgroundThreads)  : %i\n",options.backgroundThreads);
-
+	if(options.qm>1) printf("Queue Managers              (--qm)                 : %i\n", options.qm);
 	puts("");
 }

@@ -32,7 +32,7 @@ void printOptions();
 
 struct Options {
 	char *blockSizeStr;			/* -b, --bsize option */
-    int *blockSize;             /* Parsed blocksizes */
+    int *blockSize;             /* Parsed blocksizes  */
 	int blockSizeCount;         /* Number of elements in blockSize */
 	long alignment;             /* Memory alignment of buffer */
     char *directory;            /* -d, --dir option   */
@@ -41,8 +41,9 @@ struct Options {
 	int fileSize;               /* -s, --fileSize     */
 	int duration;               /* -t, --duration     */
 	int linearLogging;          /* -l, --linear       */
-	char * csvFile;             /* -c, --csvFile      */
+	char *csvFile;              /* -c, --csvFile      */
 	int backgroundThreads;      /* -p, --pthreads     */
+	int qm;      				/* -q, --qm           */
 };
 
 extern struct Options options;

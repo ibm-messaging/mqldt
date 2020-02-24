@@ -36,12 +36,12 @@
 #include<fcntl.h>
 #include<limits.h>
 #include<unistd.h>
+#include <locale.h>
 
 #include "util.h"
 #include "fileio.h"
 #include "opts.h"
 
-#include <locale.h>
 
 /*
  * prepareFiles
@@ -54,8 +54,32 @@
  */
 char *bigString;
 
-struct fileStore *prepareFiles(){
-   int **files;
+//This method is used to initialise an instance of the fileStore to store data totalled across all QM
+struct fileStore *prepareStats(int tnum){
+   struct fileStore *fs;
+
+   fs = (struct fileStore*)malloc(sizeof(struct fileStore));	
+   fs->thread = tnum;
+   fs->stats.total_writes = 0;
+   fs->stats.interval_max_bytes_sec = 0;
+   fs->stats.interval_min_bytes_sec = LONG_MAX;
+   fs->stats.interval_max_latency = 0;
+   fs->stats.interval_min_latency = LONG_MAX;   
+   fs->stats.update_count = 0;
+   fs->stats.persec_bytes = 0;
+   fs->stats.max_bytes_sec = 0;
+   fs->stats.avg_bytes_sec = 0;
+   fs->stats.min_bytes_sec = LONG_MAX;
+   fs->stats.intervalTimer = 0;
+
+   fs->resultTimings.avg_time = 0;
+   fs->resultTimings.max_time = 0;
+   fs->resultTimings.min_time = LONG_MAX;
+
+   return fs;
+}
+
+struct fileStore *prepareFiles(int tnum){
    int currFileIndex = 0;
    int stemOffset = 0;
    char *currFileName = NULL;
@@ -63,22 +87,24 @@ struct fileStore *prepareFiles(){
    int writeLen;
    
    struct fileStore *fs;
-        
    struct iovec format_vec[1];  /*Use this to 'format' the files*/
-
    struct stat stat_buf;
 
    /*int openOptions = O_CREAT|O_RDWR|O_SYNC|O_DSYNC|O_DIRECT;*/
    int openOptions = O_CREAT|O_RDWR|O_DSYNC|O_DIRECT;
+
+   //Second file handle not currently used
    int openOptions2 = O_RDWR|O_DSYNC;
    /*int openOptions = O_CREAT|O_RDWR|O_SYNC|O_DSYNC|O_DIRECT;*/
 
    int rc = -1;
 
-   puts("Creating files...");
+   fprintf(stdout, "Creating files...for thread: %d\n", tnum);
+   fflush(stdout);
    umask(0); /*Change umask to allow us to set all file permissions*/
 			
    fs = (struct fileStore*)malloc(sizeof(struct fileStore));	
+   fs->thread = tnum;
    fs->stats.total_writes = 0;
    fs->stats.interval_max_bytes_sec = 0;
    fs->stats.interval_min_bytes_sec = LONG_MAX;
@@ -97,14 +123,20 @@ struct fileStore *prepareFiles(){
    fs->writeVec[0].iov_len = 0;
    	
    /*Construct first filespec*/
-   currFileName = (char*)malloc(strlen(options.directory)+strlen(options.filePrefix)+7);
+   // 7 characters are 1 for seperator, 5 for extension ".0000" and 1 for Null
+   // Additional character is if indexed files are used (for multiple queue managers)
+   if (tnum > 0) {
+	   currFileName = (char*)malloc(strlen(options.directory)+strlen(options.filePrefix)+7+1);
+   } else {
+	   currFileName = (char*)malloc(strlen(options.directory)+strlen(options.filePrefix)+7);
+   } 
    
    if(currFileName == NULL){
-
 	   fprintf(stderr,"Error allocating filename\n");
 	   exit;
    } else {
-       strcpy(currFileName,options.directory);	
+       strcpy(currFileName,options.directory);
+	   if (tnum > 0) sprintf(&currFileName[strlen(currFileName)], "%d", tnum);
        strcat(currFileName,"/");
        strcat(currFileName,options.filePrefix);
 	   stemOffset=strlen(currFileName)+1;
@@ -118,6 +150,7 @@ struct fileStore *prepareFiles(){
       fprintf(stderr, "Error allocating file array\n");
       exit;
    }
+   //Allocate space for file handle, seek position and file handle 2
    for(i = 0; i < options.numFiles; i++) {
       fs->files[i] = malloc(3 * sizeof(int));
       if(fs->files[i] == NULL){
@@ -126,12 +159,12 @@ struct fileStore *prepareFiles(){
       }
    }
    
-   
    format_vec[0].iov_base = bigString;
    format_vec[0].iov_len = options.fileSize;
    
    for(i = 0; i < options.numFiles;i++){
       rc = stat(currFileName, &stat_buf);
+	  //If file already exists, check current size and force population if different
       if (rc == 0) {
          if (((long long)stat_buf.st_size) != options.fileSize) {
             rc = -1;
@@ -212,6 +245,8 @@ void resetFiles(struct fileStore *fs){
 	int i;
 	for(i=0;i<options.numFiles;i++){
 		lseek(fs->files[i][0],0,SEEK_SET);
+		//Shouldnt we reset our seek, else we risk moving onto next file too quickly when changing blocksize
+		fs->files[i][1] = 0;
 	}
     fs->stats.total_writes = 0;
     fs->stats.interval_max_bytes_sec = 0;
@@ -231,14 +266,23 @@ void setBlockSize(struct fileStore *fs, int writeBlockSize){
 }
 
 void updateFileStats(struct fileStore *fs){
-	if(fs->stats.intervalTimer < 1000000000  && fs->stats.intervalTimer > 500000000){
-		fs->stats.persec_bytes = fs->stats.persec_bytes * 1/((float)fs->stats.intervalTimer/1000000000);
-	}
+	//This method is usually invoked when the intervalTimer exceeds 1s, its also called at the end.
+	//If the final call is greater than half a second, then interpolate, else ignore
+	if(fs->stats.intervalTimer < HALF_SEC_IN_NS) {
+		//To small an interval
+		fs->stats.persec_bytes = 0;
+		fs->stats.intervalTimer = 0;
+		return;
+	} else if(fs->stats.intervalTimer < ONE_SEC_IN_NS) {
+		fs->stats.persec_bytes = fs->stats.persec_bytes * 1/((float)fs->stats.intervalTimer/ONE_SEC_IN_NS);
+	} //else interval timer will be just over 1s
+
 	if(fs->stats.persec_bytes > fs->stats.interval_max_bytes_sec) fs->stats.interval_max_bytes_sec = fs->stats.persec_bytes;
 	if(fs->stats.persec_bytes < fs->stats.interval_min_bytes_sec) fs->stats.interval_min_bytes_sec = fs->stats.persec_bytes;
 	
 	fs->stats.avg_bytes_sec = ((fs->stats.avg_bytes_sec * fs->stats.update_count) + fs->stats.persec_bytes) / (fs->stats.update_count+1);
 	fs->stats.update_count++;
+
 	fs->stats.persec_bytes = 0;
 	fs->stats.intervalTimer = 0;
 }
@@ -249,6 +293,10 @@ const char intervalMinBytesSecDesc[]="Min bytes/sec written to files (over 1 sec
 const char avgBytesSecDesc[]="Avg bytes/sec written to files";
 const char totalWritesDesc[]="Total writes to files";
 
+const char intervalMaxBytesSecDesc2[]="Max bytes/sec written to files by a single qm (over 1 sec interval)";
+const char intervalMinBytesSecDesc2[]="Min bytes/sec written to files by a single qm (over 1 sec interval)";
+const char avgBytesSecDesc2[]="Avg bytes/sec written to files by all queue managers";
+
 void printFileStats(struct fileStore *fs){
 	setlocale(LC_ALL, "");
 	printf("%s                                : %'15li\n",totalWritesDesc,fs->stats.total_writes);
@@ -258,7 +306,16 @@ void printFileStats(struct fileStore *fs){
 	printf("%s                       : %'15li\n",avgBytesSecDesc,fs->stats.avg_bytes_sec);
 }
 
-void csvFileStatsTitles(struct fileStore *fs, FILE *csvFile){
+void printQMFileStats(struct fileStore *fs){
+	setlocale(LC_ALL, "");
+	printf("%s                                               : %'15li\n",totalWritesDesc,fs->stats.total_writes);
+	printf("%s                                        : %'15li\n",totalBytesDesc,fs->stats.total_bytes);
+	printf("%s : %'15li\n",intervalMaxBytesSecDesc2,fs->stats.interval_max_bytes_sec);
+	printf("%s : %'15li\n",intervalMinBytesSecDesc2,fs->stats.interval_min_bytes_sec);
+	printf("%s                : %'15li\n",avgBytesSecDesc2,fs->stats.avg_bytes_sec);
+}
+
+void csvFileStatsTitles(FILE *csvFile){
 	if(	fprintf(csvFile,"%s,%s,%s,%s,%s",totalWritesDesc,totalBytesDesc,intervalMaxBytesSecDesc,intervalMinBytesSecDesc,avgBytesSecDesc) < 0) {
 		perror("Error writing to csvFile");
 		exit(8);
