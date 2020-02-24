@@ -80,9 +80,19 @@ Avg latency of write (ns)      :       4,935,648
 <tr><td>Max latency of write (ns)</td><td>The longest time (in nanoseconds) to complete a write during the test. The number of the write is indicated in brackets.</td></tr>
 <tr><td>Min bytes/sec (slowest write)</td><td>The theoretical minimum bandwidth, if every write had the maximum latency indicated above</td></tr>
 <tr><td>Min latency of write (ns)</td><td>The shortest time (in nanoseconds) to complete a write during the test. The number of the write is indicated in brackets.</td></tr>
-<tr><td>Man bytes/sec (fastest write)</td><td>The theoretical maximum bandwidth, if every write had the minimum latency indicated above</td></tr>
+<tr><td>Max bytes/sec (fastest write)</td><td>The theoretical maximum bandwidth, if every write had the minimum latency indicated above</td></tr>
 <tr><td>Avg latency of write (ns)</td><td>The average time (in nanoseconds) to complete a write during the test.</td></tr>
 </table>
 
 ## Multiple Queue Managers
-This tool has now been extended to simulate multiple Queue Managers writing to the same IO device. Use the `--qm 2` option to run with 2 queue managers, each owning their own set of log files as specified by the configuration provided. Support for up to 10 QM is provided, although only a single block size can be executed per test.
+This tool has now been extended to simulate multiple Queue Managers writing to the same IO device. 
+Use the `--qm 2` option to run with 2 queue managers, each owning their own set of log files as specified by the configuration provided. 
+Support for up to 10 QM is provided, although only a single block size can be executed per test.
+
+## Docker
+There is a repo that builds a dockerized version of mqldt called [mqldt-c](https://github.com/ibm-messaging/mqldt-c).
+
+The automatic built image from that repo is available [here](https://hub.docker.com/r/stmassey/mqldt) and can be pulled with the following command: 
+```
+docker pull stmassey/mqldt
+```
