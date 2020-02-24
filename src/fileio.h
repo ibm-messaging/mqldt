@@ -27,33 +27,32 @@
 #ifndef _FILEIO_H
 #define _FILEIO_H
 
-#include<sys/uio.h>
+#include <sys/uio.h>
+#include "util.h"
 
-/*#define updateFstats(X)  clock_gettime(CLOCK_MONOTONIC,X.start_time)*/
-
-struct fstats{
-	int update_count;
-	long persec_bytes;
-	long total_writes;
-	long total_bytes;
-	long interval_max_bytes_sec;
-	long interval_min_bytes_sec;
-	long interval_max_latency;
-	long interval_min_latency;
-	long max_bytes_sec;
-	long min_bytes_sec;
-	long avg_bytes_sec;
-	long intervalTimer;
+struct fstats {
+    int update_count;
+    long persec_bytes;
+    long total_writes;
+    long total_bytes;
+    long interval_max_bytes_sec;
+    long interval_min_bytes_sec;
+    long interval_max_latency;
+    long interval_min_latency;
+    long max_bytes_sec;
+    long min_bytes_sec;
+    long avg_bytes_sec;
+    long intervalTimer;
 };
 
-struct fileStore{
-	int **files;
-	int currentFile;
-	int fs_blockSize;
-	struct iovec writeVec[1]; 
-	struct fstats stats;
-	struct timer resultTimings;
-	int thread;
+struct fileStore {
+    int **files;
+    int currentFile;
+    int fs_blockSize;
+    struct iovec writeVec[1];
+    struct fstats stats;
+    struct timer resultTimings;
+    int thread;
 };
 
 struct fileStore *prepareFiles(int tnum);

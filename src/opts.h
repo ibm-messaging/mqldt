@@ -27,23 +27,23 @@
 #ifndef _OPTS_H
 #define _OPTS_H
 
-void parseOptions(int, char** const);
+void parseOptions(int, char **const);
 void printOptions();
 
 struct Options {
-	char *blockSizeStr;			/* -b, --bsize option */
-    int *blockSize;             /* Parsed blocksizes  */
-	int blockSizeCount;         /* Number of elements in blockSize */
-	long alignment;             /* Memory alignment of buffer */
-    char *directory;            /* -d, --dir option   */
-	char *filePrefix;           /* -f, --filePrefix   */
-	int numFiles;               /* -n, --numFiles     */
-	int fileSize;               /* -s, --fileSize     */
-	int duration;               /* -t, --duration     */
-	int linearLogging;          /* -l, --linear       */
-	char *csvFile;              /* -c, --csvFile      */
-	int backgroundThreads;      /* -p, --pthreads     */
-	int qm;      				/* -q, --qm           */
+    char *blockSizeStr;    /* -b, --bsize option */
+    int *blockSize;        /* Parsed blocksizes  */
+    int blockSizeCount;    /* Number of elements in blockSize */
+    long alignment;        /* Memory alignment of buffer */
+    char *directory;       /* -d, --dir option   */
+    char *filePrefix;      /* -f, --filePrefix   */
+    int numFiles;          /* -n, --numFiles     */
+    int fileSize;          /* -s, --fileSize     */
+    int duration;          /* -t, --duration     */
+    int linearLogging;     /* -l, --linear       */
+    char *csvFile;         /* -c, --csvFile      */
+    int backgroundThreads; /* -p, --pthreads     */
+    int qm;                /* -q, --qm           */
 };
 
 extern struct Options options;
