@@ -105,7 +105,7 @@ void printTimerStats(struct timer *timerIn, int blockSize){
 	printf("%s      : %'15li\n",avgLatencyDesc, timerIn->avg_time);
 }
 
-void csvTimerStatsTitles(struct timer *timerIn, FILE *csvFile){
+void csvTimerStatsTitles(FILE *csvFile){
 	fprintf(csvFile,"%s,%s,%s,%s,%s",maxLatencyDesc,minLatencyDesc,avgLatencyDesc,minBytesSecDesc,maxBytesSecDesc);
 }
 

@@ -35,6 +35,7 @@ struct fstats{
 	int update_count;
 	long persec_bytes;
 	long total_writes;
+	long total_bytes;
 	long interval_max_bytes_sec;
 	long interval_min_bytes_sec;
 	long interval_max_latency;
@@ -51,16 +52,19 @@ struct fileStore{
 	int fs_blockSize;
 	struct iovec writeVec[1]; 
 	struct fstats stats;
+	struct timer resultTimings;
+	int thread;
 };
 
-struct fileStore *prepareFiles();
+struct fileStore *prepareFiles(int tnum);
+struct fileStore *prepareStats(int tnum);
 ssize_t writeToFile(struct fileStore *fs, int writeBlockSize);
 void setBlockSize(struct fileStore *fs, int writeBlockSize);
 void resetFiles(struct fileStore *fs);
 void closeFiles(struct fileStore *fs);
 void updateFileStats(struct fileStore *fs);
 void printFileStats(struct fileStore *fs);
-void csvFileStatsTitles(struct fileStore *fs, FILE *csvFile);
+void csvFileStatsTitles(FILE *csvFile);
 void csvFileStats(struct fileStore *fs, FILE *csvFile);
 
 #endif

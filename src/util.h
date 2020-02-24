@@ -31,7 +31,13 @@
 #include<sys/time.h>
 
 #define tStart(X) clock_gettime(CLOCK_MONOTONIC,X.check_time1);
+#define ONE_SEC_IN_NS 1000000000
+#define HALF_SEC_IN_NS 500000000
 
+FILE *csvFile;
+pthread_mutex_t mutex;
+pthread_cond_t condition;
+volatile int started;
 
 struct timer{
 	struct timespec *start_time;  /*Make these pointers so we can flip them easily in tCheck*/
@@ -43,9 +49,9 @@ struct timer{
 	long avg_time;
 	long max_time;
 	int max_time_instance;
-	
 };
 
+//Calculates time difference between the current time and the last time this method was called, updates min/max/avg time values
 static inline long tCheck(struct timer *timerIn){
 	long duration;
 	struct timespec *temp;
@@ -54,9 +60,9 @@ static inline long tCheck(struct timer *timerIn){
 	timerIn->check_count++;
 	
 	if(timerIn->check_time2->tv_nsec > timerIn->check_time1->tv_nsec){
-		duration = ((timerIn->check_time2->tv_sec - timerIn->check_time1->tv_sec) * 1000000000 - (timerIn->check_time1->tv_nsec - timerIn->check_time2->tv_nsec));
+		duration = ((timerIn->check_time2->tv_sec - timerIn->check_time1->tv_sec) * ONE_SEC_IN_NS - (timerIn->check_time1->tv_nsec - timerIn->check_time2->tv_nsec));
 	} else {
-		duration = ((timerIn->check_time2->tv_sec - timerIn->check_time1->tv_sec) * 1000000000 + (timerIn->check_time2->tv_nsec - timerIn->check_time1->tv_nsec));
+		duration = ((timerIn->check_time2->tv_sec - timerIn->check_time1->tv_sec) * ONE_SEC_IN_NS + (timerIn->check_time2->tv_nsec - timerIn->check_time1->tv_nsec));
 	}
 	
 	if(duration > timerIn->max_time){
@@ -70,7 +76,6 @@ static inline long tCheck(struct timer *timerIn){
 	
 	timerIn->avg_time = ((timerIn->avg_time * (timerIn->check_count-1)) + duration) / (timerIn->check_count);
 
-	
 	/*flip the timespecs*/
 	temp = timerIn->check_time1;
 	timerIn->check_time1 = timerIn->check_time2;
@@ -79,18 +84,16 @@ static inline long tCheck(struct timer *timerIn){
 	return duration;
 }
 
-
 void tInit(struct timer *timerIn);
 void tReset(struct timer *timerIn);
 
 void printTimerStats(struct timer *timerIn, int blockSize);
-void csvTimerStatsTitles(struct timer *timerIn, FILE *csvFile);
+void csvTimerStatsTitles(FILE *csvFile);
 void csvTimerStats(struct timer *timerIn, FILE *csvFile, int blockSize);
-
-
-extern char *testString;
 
 long file_GetPhysicalBlockSize(char *path);
 char *UtilMakeBigString(int size, long alignment);
 
+void* runTest(void *arg);
+void openCSVFile();
 #endif
