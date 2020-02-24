@@ -28,6 +28,7 @@ Options:
 --numFiles    : Number of files to create and use
 --duration    : Number of seconds to test
 --csvFile     : Optional csv output file
+--qm          : Number of Queue Managers
 </pre>
 e.g.
 mqldt --dir=/var/san1/testdir --filePrefix=mqtestfile --bsize=5K,9K,17K,24K,49K,48K,54K,62K,77K,95K,105K --fileSize=67108864 --numFiles=16 --duration=40 --csvFile=./san_log.csv
@@ -41,7 +42,7 @@ Use the values in qm.ini (or those planned) to calculate some of the parameters 
 <tr><td>--numFiles</td><td><i>Log:LogPrimaryFiles</i></td></tr>
 </table>
 
-### Sample output:
+## Sample output:
 
 <pre>
 Options (specified or defaulted to)
@@ -69,7 +70,7 @@ Max bytes/sec (fastest write)  :     348,698,688
 Avg latency of write (ns)      :       4,935,648
 </pre>
 
-### Description of Output
+## Description of Output
 <table>
 <tr><td>Total writes to files</td><td>The total number of writev operations completed over the duration of the test</td></tr>
 <tr><td>Total bytes written to files</td><td>Total bytes written over the duration of the test (i.e Total writes to files x blocksize)</td></tr>
@@ -82,3 +83,6 @@ Avg latency of write (ns)      :       4,935,648
 <tr><td>Man bytes/sec (fastest write)</td><td>The theoretical maximum bandwidth, if every write had the minimum latency indicated above</td></tr>
 <tr><td>Avg latency of write (ns)</td><td>The average time (in nanoseconds) to complete a write during the test.</td></tr>
 </table>
+
+## Multiple Queue Managers
+This tool has now been extended to simulate multiple Queue Managers writing to the same IO device. Use the `--qm 2` option to run with 2 queue managers, each owning their own set of log files as specified by the configuration provided. Support for up to 10 QM is provided, although only a single block size can be executed per test.
