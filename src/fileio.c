@@ -124,7 +124,9 @@ struct fileStore *prepareFiles(int tnum) {
     /*Construct first filespec*/
     // 7 characters are 1 for seperator, 5 for extension ".0000" and 1 for Null
     // Additional character is if indexed files are used (for multiple queue managers)
-    if (tnum > 0) {
+    if (tnum >= 10) {
+        currFileName = (char *)malloc(strlen(options.directory) + strlen(options.filePrefix) + 7 + 2);
+	} else if (tnum > 0) {
         currFileName = (char *)malloc(strlen(options.directory) + strlen(options.filePrefix) + 7 + 1);
     } else {
         currFileName = (char *)malloc(strlen(options.directory) + strlen(options.filePrefix) + 7);
@@ -325,8 +327,22 @@ void csvFileStatsTitles(FILE *csvFile) {
     }
 }
 
+void csvQMFileStatsTitles(FILE *csvFile) {
+    if (fprintf(csvFile, "%s,%s,%s,%s,%s", totalWritesDesc, totalBytesDesc, intervalMaxBytesSecDesc2, intervalMinBytesSecDesc2, avgBytesSecDesc2) < 0) {
+        perror("Error writing to csvFile");
+        exit(8);
+    }
+}
+
 void csvFileStats(struct fileStore *fs, FILE *csvFile) {
     if (fprintf(csvFile, "%li,%li,%li,%li,%li", fs->stats.total_writes, (fs->stats.total_writes * fs->writeVec[0].iov_len), fs->stats.interval_max_bytes_sec, fs->stats.interval_min_bytes_sec, fs->stats.avg_bytes_sec) < 0) {
+        perror("Error writing to csvFile");
+        exit(8);
+    }
+}
+
+void csvQMFileStats(struct fileStore *fs, FILE *csvFile) {
+    if (fprintf(csvFile, "%li,%li,%li,%li,%li", fs->stats.total_writes, fs->stats.total_bytes, fs->stats.interval_max_bytes_sec, fs->stats.interval_min_bytes_sec, fs->stats.avg_bytes_sec) < 0) {
         perror("Error writing to csvFile");
         exit(8);
     }

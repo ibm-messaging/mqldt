@@ -67,7 +67,11 @@ void openCSVFile() {
             exit(8);
         }
         fprintf(csvFile, "Blocksize,");
-        csvFileStatsTitles(csvFile);
+		if (options.qm == 1) {
+        	csvFileStatsTitles(csvFile);
+		} else {
+        	csvQMFileStatsTitles(csvFile);
+		}
         fprintf(csvFile, ",");
         csvTimerStatsTitles(csvFile);
         fprintf(csvFile, "\n");
@@ -78,12 +82,27 @@ void openCSVFile() {
 void CSVStats(struct fileStore *files, struct timer *t1, int blockSize) {
     if (options.csvFile != NULL) {
         fprintf(csvFile, "%i,", blockSize);
-        csvFileStats(files, csvFile);
+		if (options.qm == 1) {
+	        csvFileStats(files, csvFile);
+		} else {
+	        csvQMFileStats(files, csvFile);
+		}
         fprintf(csvFile, ",");
         csvTimerStats(t1, csvFile, blockSize);
         fprintf(csvFile, "\n");
     }
 }
+
+void CSVQMStats(struct fileStore *files, struct timer *t1, int blockSize) {
+    if (options.csvFile != NULL) {
+        fprintf(csvFile, "%i,", blockSize);
+        csvQMFileStats(files, csvFile);
+        fprintf(csvFile, ",");
+        csvTimerStats(t1, csvFile, blockSize);
+        fprintf(csvFile, "\n");
+    }
+}
+
 
 void *runTest(void *arg) {
     struct timer t1;
@@ -98,7 +117,7 @@ void *runTest(void *arg) {
     elapsedStringTailChars = floor(log10(options.duration)) + 2;
     /*We report secs elapsed as 'elapsed/duration', e.g 34/100, this value is how many chars the back half of that string takes (e.g. '/100')*/
 
-    //Wait for sync
+    //Wait for sync to ensure all threads start at the same time (after file creation has finished)
     if (options.qm > 1) {
         pthread_mutex_lock(&mutex);
         while (started == 0) {
@@ -229,7 +248,7 @@ int main(int argc, char *argv[]) {
         files = prepareStats(0);
         filesArray[0] = files;
 
-        //Create semaphore for each thread to notify when file creation is finished
+        //Create conditional flag which can be used on each thread, so that they are notified when file creation is finished
         pthread_mutex_init(&mutex, NULL);
         pthread_cond_init(&condition, NULL);
         pthread_mutex_lock(&mutex);
@@ -254,7 +273,7 @@ int main(int argc, char *argv[]) {
         pthread_cond_broadcast(&condition);
         pthread_mutex_unlock(&mutex);
 
-        //Wait for all threads to finish
+        //Wait for all threads to finish.
         for (k = 1; k <= options.qm; k++) {
             pthread_join(tid[k], NULL);
         }
@@ -264,7 +283,7 @@ int main(int argc, char *argv[]) {
         puts("");
         printTimerStats(&filesArray[0]->resultTimings, options.blockSize[0]);
         puts("");
-        CSVStats(files, &filesArray[0]->resultTimings, options.blockSize[0]);
+        CSVStats(filesArray[0], &filesArray[0]->resultTimings, options.blockSize[0]);
     } else {
         //Single qm
         files = prepareFiles(0);
