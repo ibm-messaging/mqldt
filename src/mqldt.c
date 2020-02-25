@@ -61,7 +61,12 @@ void *consume_cpu(void *arg) {
 
 void openCSVFile() {
     if (options.csvFile != NULL) {
-        csvFile = fopen(options.csvFile, "w");
+		if (options.qm == 1) {
+        	csvFile = fopen(options.csvFile, "w");
+		} else {
+        	csvFile = fopen(options.csvFile, "a");
+        	fprintf(csvFile, "Running MQLDT over %d Queue Managers\n", options.qm);
+		}
         if (csvFile == NULL) {
             perror("Error opening csv file for writing");
             exit(8);
