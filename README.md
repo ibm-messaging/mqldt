@@ -86,9 +86,9 @@ Avg latency of write (ns)      :       4,935,648
 
 ## Multiple Queue Managers
 This tool has now been extended to simulate multiple Queue Managers writing to the same IO device. 
-Use the `--qm 2` option to run with 2 queue managers, each owning their own set of log files as specified by the configuration provided, noting that for qm 2 to 10, a numeric value is appended to the directory location. 
+Use the `--qm=2` option to run with 2 queue managers, each owning their own set of log files as specified by the configuration provided, noting that for qm 2 to 10, a numeric value is appended to the directory location. 
 
-i.e If `--qm 3 --dir=/tmp/mqldt` is provided, directories labeled `/tmp/mqldt1, /tmp/mqldt2 and /tmp/mqldt3` need to be created before the test is run
+i.e If `--qm=3 --dir=/tmp/mqldt` is provided, directories labeled `/tmp/mqldt1, /tmp/mqldt2 and /tmp/mqldt3` need to be created before the test is run
 
 Support for up to 10 QM is provided, although only a single block size can be executed per test.
 

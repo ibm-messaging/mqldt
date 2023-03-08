@@ -35,7 +35,7 @@
 
 void display_usage(void) {
     puts("mqldt - MQ log file tester");
-    puts("Usage: mqldt --dir <directory --bsize <list of csv blocksizes i.e 32K,64K> [ --filePrefix <prefix> --fileSize <fs> --numFiles <n> --duration <s> --csvFile <csvFileName> --qm <#qm>]");
+    puts("Usage: mqldt --dir=<directory> --bsize=<list of csv blocksizes i.e 32K,64K> [ --filePrefix=<prefix> --fileSize=<fs> --numFiles=<n> --duration=<s> --csvFile=<csvFileName> --qm=<#qm>]");
     exit(8);
 }
 
