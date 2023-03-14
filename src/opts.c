@@ -82,10 +82,10 @@ void parseOptions(int argc, char *argv[]) {
     }
 
     while (opt != -1) {
-        //It's an undocumented 'feature' of getopt_long that optional parameers need to be specified with the equals sign
+        //It's an undocumented 'feature' of getopt_long that optional parameters need to be specified with the equals sign
         //This isn't trapped by the normal error processing (indicated by an opt value of '?')
         if(!optarg && opt !='?') {
-            printf("No value specified for parameter --%s. Hint: long form parms must be specified as <parm>=<value>.\n",longOpts[longIndex].name,opt);
+            printf("No value specified for parameter --%s. Hint: long form parms must be specified as <parm>=<value>.\n",longOpts[longIndex].name);
             display_usage();
         }
     
