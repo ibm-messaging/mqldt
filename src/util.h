@@ -34,10 +34,10 @@
 #define ONE_SEC_IN_NS 1000000000
 #define HALF_SEC_IN_NS 500000000
 
-FILE *csvFile;
-pthread_mutex_t mutex;
-pthread_cond_t condition;
-volatile int started;
+extern FILE *csvFile;
+extern pthread_mutex_t mutex;
+extern pthread_cond_t condition;
+extern volatile int started;
 
 struct timer {
     struct timespec *start_time; /*Make these pointers so we can flip them easily in tCheck*/

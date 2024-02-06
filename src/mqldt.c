@@ -35,6 +35,11 @@
 #include "opts.h"
 #include "util.h"
 
+FILE *csvFile;
+pthread_mutex_t mutex;
+pthread_cond_t condition;
+volatile int started;
+
 void *consume_cpu(void *arg) {
     clock_t start, end;
     double runTime;
