@@ -192,7 +192,7 @@ void *runTest(void *arg) {
     }
 
     closeFiles(files);
-    return;
+    return 0;
 }
 
 void processStats(struct fileStore *array[]) {

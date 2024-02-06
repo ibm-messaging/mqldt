@@ -63,7 +63,10 @@ void resetFiles(struct fileStore *fs);
 void closeFiles(struct fileStore *fs);
 void updateFileStats(struct fileStore *fs);
 void printFileStats(struct fileStore *fs);
+void printQMFileStats(struct fileStore *fs);
 void csvFileStatsTitles(FILE *csvFile);
+void csvQMFileStatsTitles(FILE *csvFile);
 void csvFileStats(struct fileStore *fs, FILE *csvFile);
+void csvQMFileStats(struct fileStore *fs, FILE *csvFile);
 
 #endif
