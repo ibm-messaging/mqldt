@@ -202,5 +202,8 @@ void printOptions() {
         printf("Background Threads          (--backgroundThreads)  : %i\n", options.backgroundThreads);
     if (options.qm > 1)
         printf("Queue Managers              (--qm)                 : %i\n", options.qm);
+    if (options.csvFile) {
+        printf("CSV File                    (--csvFile)            : %s\n", options.csvFile);
+    }
     puts("");
 }
