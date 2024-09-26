@@ -190,6 +190,8 @@ void *runTest(void *arg) {
             CSVStats(files, &t1, options.blockSize[testCount]);
             resetFiles(files); /*Reset SEEK pointers to start of files if running further tests */
         }
+        //Flush stdout between each blocksize to ensure no corruption between STDERR and STDOUT
+        fflush(stdout);
     }
     // If we have multi QM, we have only a single block size, store timings and return
     if (options.qm > 1) {
