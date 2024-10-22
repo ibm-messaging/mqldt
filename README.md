@@ -29,6 +29,7 @@ Options:
 --duration    : Number of seconds to test
 --csvFile     : Optional csv output file
 --qm          : Number of Queue Managers
+--delay       : Delay to add to each IO write (microsec)
 </pre>
 e.g.
 mqldt --dir=/var/san1/testdir --filePrefix=mqtestfile --bsize=5K,9K,17K,24K,49K,48K,54K,62K,77K,95K,105K --fileSize=67108864 --numFiles=16 --duration=40 --csvFile=./san_log.csv
@@ -73,6 +74,7 @@ Avg latency of write (ns)      :       4,935,648
 ## Description of Output
 <table>
 <tr><td>Total writes to files</td><td>The total number of writev operations completed over the duration of the test</td></tr>
+<tr><td>IOPS</td><td>The total number of writev operations completed per second over the duration of the test</td></tr>
 <tr><td>Total bytes written to files</td><td>Total bytes written over the duration of the test (i.e Total writes to files x blocksize)</td></tr>
 <tr><td>Max bytes/sec written to files (over 1 sec interval)</td><td>MQLDT calculates how much data has been written every second, this is the maximum write bandwidth measured for any one second duration. If the test is only run for one second this number will be the same as 'Avg bytes/sec written to files'</td></tr>
 <tr><td>Min bytes/sec written to files (over 1 sec interval)</td><td>This is the minimum write bandwidth measured for any one second duration '(see Max bytes/sec written to files (over 1 sec interval)', above). If the test is only run for one second this number will be the same as 'Avg bytes/sec written to files'</td></tr>
