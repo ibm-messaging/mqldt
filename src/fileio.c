@@ -226,6 +226,9 @@ ssize_t writeToFile(struct fileStore *fs, int writeBlockSize) {
     } else {
         fs->stats.total_writes++;
         fs->stats.persec_bytes += writeLen;
+        if (options.delay) {
+            usleep(options.delay);
+        }
     }
 
     fs->files[fs->currentFile][1] += writeBlockSize;
@@ -297,6 +300,7 @@ const char intervalMaxBytesSecDesc[] = "Max bytes/sec written to files (over 1 s
 const char intervalMinBytesSecDesc[] = "Min bytes/sec written to files (over 1 sec interval)";
 const char avgBytesSecDesc[] = "Avg bytes/sec written to files";
 const char totalWritesDesc[] = "Total writes to files";
+const char IOPSDesc[] = "IOPS";
 
 const char intervalMaxBytesSecDesc2[] = "Max bytes/sec written to files by a single qm (over 1 sec interval)";
 const char intervalMinBytesSecDesc2[] = "Min bytes/sec written to files by a single qm (over 1 sec interval)";
@@ -305,6 +309,7 @@ const char avgBytesSecDesc2[] = "Avg bytes/sec written to files by all queue man
 void printFileStats(struct fileStore *fs) {
     setlocale(LC_ALL, "");
     printf("%s                                : %'15li\n", totalWritesDesc, fs->stats.total_writes);
+    printf("%s                                                 : %'15li\n", IOPSDesc, fs->stats.total_writes / options.duration);
     printf("%s                         : %'15li\n", totalBytesDesc, (fs->stats.total_writes * fs->writeVec[0].iov_len));
     printf("%s : %'15li\n", intervalMaxBytesSecDesc, fs->stats.interval_max_bytes_sec);
     printf("%s : %'15li\n", intervalMinBytesSecDesc, fs->stats.interval_min_bytes_sec);
@@ -314,6 +319,7 @@ void printFileStats(struct fileStore *fs) {
 void printQMFileStats(struct fileStore *fs) {
     setlocale(LC_ALL, "");
     printf("%s                                               : %'15li\n", totalWritesDesc, fs->stats.total_writes);
+    printf("%s                                                                : %'15li\n", IOPSDesc, fs->stats.total_writes / options.duration);
     printf("%s                                        : %'15li\n", totalBytesDesc, fs->stats.total_bytes);
     printf("%s : %'15li\n", intervalMaxBytesSecDesc2, fs->stats.interval_max_bytes_sec);
     printf("%s : %'15li\n", intervalMinBytesSecDesc2, fs->stats.interval_min_bytes_sec);

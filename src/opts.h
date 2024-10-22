@@ -44,6 +44,7 @@ struct Options {
     char *csvFile;         /* -c, --csvFile      */
     int backgroundThreads; /* -p, --pthreads     */
     int qm;                /* -q, --qm           */
+    int delay;             /* -z, --delay        */
 };
 
 extern struct Options options;

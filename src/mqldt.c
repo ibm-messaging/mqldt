@@ -143,7 +143,7 @@ void *runTest(void *arg) {
 
         //Only display on first thread (0 for single thread, 1 for multi-thread)
         if (files->thread <= 1)
-            fprintf(stderr, "Executing test for write blocksize %i (%ik). Seconds elapsed -> ", options.blockSize[testCount], options.blockSize[testCount] / 1024);
+            fprintf(stderr, "Executing test for write blocksize %i bytes (%iKB). Seconds elapsed -> ", options.blockSize[testCount], options.blockSize[testCount] / 1024);
 
         //Stores current time in start time
         tReset(&t1);

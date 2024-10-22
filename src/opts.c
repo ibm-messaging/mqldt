@@ -35,12 +35,12 @@
 
 void display_usage(void) {
     puts("mqldt - MQ log file tester");
-    puts("Usage: mqldt --dir=<directory> --bsize=<list of blocksizes i.e 32K,64K> [ --filePrefix=<prefix> --fileSize=<fs> --numFiles=<n> --duration=<s> --csvFile=<csvFileName> --qm=<#qm>]");
+    puts("Usage: mqldt --dir=<directory> --bsize=<list of blocksizes i.e 32K,64K> [ --filePrefix=<prefix> --fileSize=<fs> --numFiles=<n> --duration=<s> --csvFile=<csvFileName> --qm=<#qm> --delay=<simulated IO delay in microsec>]");
     exit(8);
 }
 
 int alignmentSpecified = 0;
-static const char *optString = "h?b:d:f:s:t:n:c:a:p:q:";
+static const char *optString = "h?b:d:f:s:t:n:c:a:p:q:z:";
 
 static const struct option longOpts[] = {
     {"bsize", required_argument, NULL, 'b'},
@@ -54,6 +54,7 @@ static const struct option longOpts[] = {
     {"backgroundThreads", optional_argument, NULL, 'p'},
     {"help", no_argument, NULL, 'h'},
     {"qm", optional_argument, NULL, 'q'},
+    {"delay", optional_argument, NULL, 'z'},
     {NULL, no_argument, NULL, 0}};
 
 struct Options options;
@@ -75,6 +76,7 @@ void parseOptions(int argc, char *argv[]) {
     options.backgroundThreads = 0;
     options.numFiles = 8;
     options.qm = 1;
+    options.delay = 0;
 
     if (opt == -1) {
         display_usage();
@@ -166,6 +168,10 @@ void parseOptions(int argc, char *argv[]) {
             }
             break;
 
+        case 'z':
+            options.delay = atoi(optarg);
+            break;
+
         case 'h': /* fall-through is intentional */
         case '?':
             display_usage();
@@ -196,12 +202,18 @@ void printOptions() {
     printf("Size of test files          (--fileSize)           : %i\n", options.fileSize);
     /*printf("Simulate linear logging?    (--linear)     : %i\n",options.linearLogging);*/
     printf("Test duration               (--duration)           : %i\n", options.duration);
-    if (alignmentSpecified)
+    if (options.delay) {
+        printf("Delay (microsec)            (--delay)              : %i\n", options.delay);
+    }
+    if (alignmentSpecified) {
         printf("Record alignment            (--alignment)          : %ld\n", options.alignment);
-    if (options.backgroundThreads > 0)
+    }
+    if (options.backgroundThreads > 0) {
         printf("Background Threads          (--backgroundThreads)  : %i\n", options.backgroundThreads);
-    if (options.qm > 1)
+    }
+    if (options.qm > 1) {
         printf("Queue Managers              (--qm)                 : %i\n", options.qm);
+    }
     if (options.csvFile) {
         printf("CSV File                    (--csvFile)            : %s\n", options.csvFile);
     }
