@@ -94,10 +94,10 @@ i.e If `--qm=3 --dir=/tmp/mqldt` is provided, directories labeled `/tmp/mqldt1, 
 
 Support for up to 10 QM is provided, although only a single block size can be executed per test.
 
-## Docker
+## Container image (docker/podman)
 There is a repo that builds a dockerized version of mqldt called [mqldt-c](https://github.com/ibm-messaging/mqldt-c).
 
-The automatic built image from that repo is available [here](https://hub.docker.com/r/stmassey/mqldt) and can be pulled with the following command: 
+The built image from that repo is available [here](https://quay.io/stmassey/mqldt) and can be pulled with the following command: 
 ```
-docker pull stmassey/mqldt
+docker pull quay.io/stmassey/mqldt
 ```
