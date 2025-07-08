@@ -2,7 +2,7 @@
 
 The purpose of this tool is to test the capability of a Linux mounted filesystem being used (or being proposed) to host an MQ recovery log.
 
-![#f03c15](https://placehold.it/15/f03c15/000000?text=+)<b> Warning!!</b>  
+<b>Warning!!</b>  
 <ul><li>If any queue manager is currently using the filesystem being tested:</li>
 <ul><li>Do NOT specify existing log files to write to.</li>
 <li>Create a new directory on the filesystem to be tested (this must be in the same file system as the current MQ logs)</li>
