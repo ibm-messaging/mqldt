@@ -101,7 +101,7 @@ There is a repo that builds a dockerized version of mqldt called [mqldt-c](https
 The latency reported will indicate the time spent waiting for the IO write to complete and will vary depending on the underlying storage and the size of the block size, but for some ballpark reference figures, here are some indications
 of latency measured in contrasting environments:
 <table>
-  <tr><td>Environment</td><td>Approximate observed latency</td></tr>
+  <tr><td><b>Storage Class</td><td>Approximate observed latency</td></b></tr>
   <tr><td>Local NVMe</td><td><100 microsec</td></tr>
   <tr><td>Local SAN</td><td><7 millisec</td></tr>
   <tr><td>Cloud Block storage</td><td><10 millisec</td></tr>
