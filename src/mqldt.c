@@ -124,8 +124,9 @@ void *runTest(void *arg) {
     struct fileStore *files;
     files = (struct fileStore *)arg;
 
-    elapsedStringTailChars = floor(log10(options.duration)) + 2;
-    /*We report secs elapsed as 'elapsed/duration', e.g 34/100, this value is how many chars the back half of that string takes (e.g. '/100')*/
+    // We report secs elapsed as 'elapsed/duration', e.g 34/100, this value is how many chars the back half of that string takes (e.g. '/100')
+    // Also include additional space for nicer formatting when backspace char doesnt work (log stream)
+    elapsedStringTailChars = floor(log10(options.duration)) + 3;
 
     //Wait for sync to ensure all threads start at the same time (after file creation has finished)
     if (options.qm > 1) {
@@ -160,7 +161,7 @@ void *runTest(void *arg) {
                 if (files->thread <= 1) {
                     elapsed++;
                     elapsedStringDigits = floor(log10(elapsed)) + 1;
-                    fprintf(stderr, "%i/%i", elapsed, options.duration);
+                    fprintf(stderr, "%i/%i ", elapsed, options.duration);
                     fflush(stderr);
                     /*Backspace the cursor the right number of digits*/
                     fprintf(stderr, "%.*s", (elapsedStringDigits + elapsedStringTailChars), "\b\b\b\b\b\b\b\b\b\b\b");
